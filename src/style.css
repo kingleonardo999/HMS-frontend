@@ -1,0 +1,13 @@
+* {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-decoration: none;
+  outline: none;
+  box-sizing: border-box;
+}
+
+@font-face {
+  font-family: hetang;
+  src: url(./assets/fonts/荷塘月色手写体+Regular.ttf);
+}
