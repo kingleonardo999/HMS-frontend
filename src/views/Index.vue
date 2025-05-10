@@ -3,11 +3,11 @@
     <div class="left">
       <h2>Leo酒店综合平台</h2>
       <el-menu 
+      :default-active="activeMenu"
       router
       active-text-color="#ffd04b" 
       background-color="#142334" 
       class="el-menu-vertical-demo" 
-      default-active="2"
       text-color="#fff">
         <el-sub-menu index="1">
           <template #title>
@@ -46,6 +46,7 @@
     <div class="right">
       <div class="top">
         <el-menu
+          :default-active="activeMenu"
           router
           :ellipsis="false"
           mode="horizontal"
@@ -94,12 +95,22 @@ import {
   ChatDotRound,
   Avatar,
 } from '@element-plus/icons-vue';
-import { onMounted } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import useUser from '../store/user';
 let userStore = useUser();
 let router = useRouter();
+// route是获取当前路由对象，用于获取当前路由的路径
+let route = useRoute();
+const activeMenu = ref('');
+
+// 监听路由变化，更新 activeMenu，然后在两个 el-menu 中绑定 :default-active="activeMenu"
+watch(() => route.path, (newPath) => {
+  activeMenu.value = newPath;
+}, { immediate: true });
+
+
 onMounted(() => {
   if(!userStore.user.id){
     router.push('/')

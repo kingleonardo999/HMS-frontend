@@ -9,7 +9,7 @@ const instance = axios.create({
 
 // get请求方法
 export const $get = async (url:string, params?:object) => {
-  let { data } = await instance.get(url, { params });
+  let { data } = await instance.get(url, { params: params });
   return data;
 };
 

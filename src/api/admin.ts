@@ -43,3 +43,27 @@ export const $getOne = async (params:object) => {
   let ret = await $get('/admin/getOne', params);
   return ret;
 }
+
+// 获取用户列表
+export const $list = async () => {
+  let ret = await $get('/admin/list');
+  return ret.data;
+}
+
+// 添加角色
+export const $add = async (params: object) => {
+  let ret = await $post('/admin/add', params);
+  return ret;
+}
+
+// 删除角色
+export const $delete = async (params: object) => {
+  let ret = await $post('/admin/delete', params);
+  return ret;
+}
+
+// 更新角色
+export const $update = async (params: object) => {
+  let ret = await $post('/admin/update', params);
+  return ret;
+}

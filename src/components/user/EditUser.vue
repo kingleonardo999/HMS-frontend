@@ -2,7 +2,7 @@
   <el-drawer
     size="30%"
     v-model="drawer"
-    :title="formData.roleId?'修改角色':'添加角色'"
+    :title="formData.loginId?'修改用户':'添加用户'"
     direction="rtl"
     :before-close="closeDrawer"
   >
@@ -13,11 +13,23 @@
       status-icon 
       :rules="rules" 
       label-width="60px">
-        <el-form-item label="角色名称" prop="roleName">
+        <el-form-item label="用户账号" prop="roleName">
+          <el-input v-model="formData.roleName" />
+        </el-form-item>
+        <el-form-item label="用户名称" prop="roleName">
+          <el-input v-model="formData.roleName" />
+        </el-form-item>
+        <el-form-item label="用户名称" prop="roleName">
+          <el-input v-model="formData.roleName" />
+        </el-form-item>
+        <el-form-item label="用户名称" prop="roleName">
+          <el-input v-model="formData.roleName" />
+        </el-form-item>
+        <el-form-item label="用户名称" prop="roleName">
           <el-input v-model="formData.roleName" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="submitForm(formRef)">{{formData.roleId?'修改':'添加'}}</el-button>
+          <el-button type="primary" @click="submitForm(formRef)">{{formData.loginId?'修改':'添加'}}</el-button>
           <el-button @click="resetForm(formRef)">取消</el-button>
         </el-form-item>
       </el-form>
@@ -28,7 +40,7 @@
 // 引入组件
 import { ElNotification, type FormInstance, type FormRules } from 'element-plus';
 import { reactive, ref } from 'vue';
-import { $add, $update } from '../../api/role';
+import { $add, $update } from '../../api/admin';
 
 const emit = defineEmits(['sync-list'])
 
@@ -43,14 +55,20 @@ const closeDrawer = () => {
 
 // 定义表单数据类型
 interface RoleFormData {
+  name: string;
+  phone: string;
+  photo: string;
   roleName: string;
-  roleId?: number;
+  loginId?: string;
 }
 
 // 定义一个响应式对象，绑定表单数据
 const formData = ref<RoleFormData>({
+  loginId: undefined,
+  name: '',
+  phone: '',
+  photo: '',
   roleName: '',
-  roleId: undefined,
 })
 
 // 定义一个ref对象，绑定表单
@@ -73,8 +91,11 @@ const rules = reactive<FormRules<typeof formData>>({
 // 初始化表单数据
 const initFormData = (data?: RoleFormData) => {
   formData.value = data || {
+    loginId: undefined,
+    name: '',
+    phone: '',
+    photo: '',
     roleName: '',
-    roleId: undefined,
   };
 };
 
@@ -83,7 +104,7 @@ const submitForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return
   formEl.validate(async (valid) => {
     if (valid) {
-      if (formData.value.roleId) {
+      if (formData.value.loginId) {
         // 修改角色
         let ret = await $update(formData.value)
         if (ret.success){
