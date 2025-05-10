@@ -14,9 +14,15 @@ export default defineStore(
     function setUser(newUser: userData) {
       user.value = newUser;
     }
+    function clearUser() {
+      sessionStorage.clear(); // 清除 sessionStorage 缓存
+      // sessionStorage.removeItem('user'); // 清除 user 缓存
+      user.value = {} as userData;
+    }
     return {
       user,
       setUser,
+      clearUser,
     };
   },{
     persist: true // 持久化存储

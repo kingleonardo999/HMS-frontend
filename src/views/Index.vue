@@ -53,15 +53,15 @@
           text-color="#fff"
           active-text-color="#ffd04b"
         >
-          <el-menu-item index="/index/home">
+          <el-menu-item index="/index">
             <el-icon><HomeFilled /></el-icon>
             首页
           </el-menu-item>
-          <el-menu-item index="/index/mail">
+          <el-menu-item index="/mail">
             <el-icon><Message /></el-icon>
             邮件
           </el-menu-item>
-          <el-menu-item index="/index/message">
+          <el-menu-item index="/message">
             <el-icon><ChatDotRound /></el-icon>
             消息
           </el-menu-item>
@@ -70,9 +70,9 @@
               <el-icon><Avatar /></el-icon>
               管理员
             </template>
-            <el-menu-item index="/index/mine">个人中心</el-menu-item>
-            <el-menu-item index="/index/setpwd">修改密码</el-menu-item>
-            <el-menu-item index="">退出系统</el-menu-item>
+            <el-menu-item index="/mine">个人中心</el-menu-item>
+            <el-menu-item index="/setpwd">修改密码</el-menu-item>
+            <el-menu-item index="" @click="exit">退出系统</el-menu-item>
           </el-sub-menu>
         </el-menu>
       </div>
@@ -95,6 +95,7 @@ import {
   Avatar,
 } from '@element-plus/icons-vue';
 import { onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router';
 import useUser from '../store/user';
 let userStore = useUser();
@@ -104,6 +105,30 @@ onMounted(() => {
     router.push('/')
   }
 })
+
+// 退出系统
+let exit = () => {
+  // 弹出确认框
+  ElMessageBox.confirm(
+    '是否退出系统？',
+    '系统提示',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  ).then(() => {
+    // 确定退出，清除用户信息，并跳转到登录页面
+    userStore.clearUser();
+    router.push('/');
+    ElMessage({
+      type: 'success',
+      message: '退出成功',
+    })
+  }).catch(() => {
+    // 取消退出，不做任何操作
+  })
+};
 </script>
 
 <style scoped>

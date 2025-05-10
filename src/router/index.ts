@@ -18,27 +18,27 @@ const routes = [
     component: () => import('../views/Index.vue'),
     children: [
       {
-        path: 'home',
+        path: '', // 默认子路由
         meta: { titile: '首页' },
         component: () => import('../views/Home.vue')
       },
       {
-        path: 'mail',
+        path: '/mail',
         meta: { titile: '邮件' },
         component: () => import('../views/Mail.vue')
       },
       {
-        path: 'message',
+        path: '/message',
         meta: { titile: '消息' },
         component: () => import('../views/Message.vue')
       },
       {
-        path: 'mine',
+        path: '/mine',
         meta: { titile: '个人中心' },
         component: () => import('../views/user/Mine.vue')
       },
       {
-        path: 'setpwd',
+        path: '/setpwd',
         meta: { titile: '修改密码' },
         component: () => import('../views/user/SetPwd.vue')
       },

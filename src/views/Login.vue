@@ -26,7 +26,7 @@
 
 <script setup lang="ts">
 // 导入组合式API
-import { reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 // 导入路由器
 import { useRouter } from 'vue-router'
 // 导入全局状态管理
@@ -95,6 +95,12 @@ const resetForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return
   formEl.resetFields()
 }
+
+onMounted(() => {
+  if(userStore.user.id){
+    router.push('/index')
+  }
+})
 </script>
 
 <style scoped lang="scss">
