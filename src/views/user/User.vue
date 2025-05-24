@@ -50,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, nextTick } from 'vue';
+import { onMounted, ref } from 'vue';
 import { $userList, $delete, $getOne } from '../../api/admin';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import EditUser from '../../components/user/EditUser.vue';
