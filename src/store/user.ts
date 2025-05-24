@@ -2,9 +2,11 @@ import { defineStore } from "pinia";
 import { ref } from 'vue'
 
 type userData = {
-  id: string;
+  loginId: string;
   name: string;
-  role: string;
+  roleName: string;
+  phone: string;
+  photo: string;
 }
 
 export default defineStore(

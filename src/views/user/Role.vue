@@ -32,7 +32,7 @@ import { $list, $delete, $getOne } from '../../api/role';
 import EditRole from '../../components/user/EditRole.vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 
-type Role = {
+export type Role = {
   roleId: number;
   roleName: string;
 };

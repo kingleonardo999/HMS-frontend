@@ -69,7 +69,7 @@
           <el-sub-menu index="admin">
             <template #title>
               <el-icon><Avatar /></el-icon>
-              管理员
+              {{userStore.user.name}}
             </template>
             <el-menu-item index="/mine">个人中心</el-menu-item>
             <el-menu-item index="/setpwd">修改密码</el-menu-item>
@@ -112,7 +112,7 @@ watch(() => route.path, (newPath) => {
 
 
 onMounted(() => {
-  if(!userStore.user.id){
+  if(!userStore.user.loginId){
     router.push('/')
   }
 })

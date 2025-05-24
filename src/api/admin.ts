@@ -1,13 +1,13 @@
-import { $get, $post } from '../utils/request';
+import { $get, $post, $postDelay } from '../utils/request';
 import { md5 } from 'md5js';
 import { ElNotification } from 'element-plus'
 
-type LoginParams = {
+interface LoginParams {
   loginId: string; // 登录名
   loginPwd: string; // 登录密码
 }
 
-type LoginResponse = {
+interface LoginResponse {
   success: boolean; // 是否登录成功
   message: string; // 提示信息
   [key:string]: any; // 提示信息
@@ -45,14 +45,20 @@ export const $getOne = async (params:object) => {
 }
 
 // 获取用户列表
-export const $list = async () => {
-  let ret = await $get('/admin/list');
-  return ret.data;
+export const $userList = async (params:object) => {
+  let ret = await $get('/admin/list', params);
+  return ret;
 }
 
+interface addParams {
+  loginId: string; // 登录名
+  loginPwd: string; // 登录密码
+}
 // 添加角色
-export const $add = async (params: object) => {
-  let ret = await $post('/admin/add', params);
+export const $add = async (params: addParams) => {
+  // 加密密码
+  params.loginPwd = md5(md5(params.loginPwd, 32).split('').reverse().join(''), 32);
+  let ret = await $postDelay('/admin/add', params);
   return ret;
 }
 
@@ -64,6 +70,6 @@ export const $delete = async (params: object) => {
 
 // 更新角色
 export const $update = async (params: object) => {
-  let ret = await $post('/admin/update', params);
+  let ret = await $postDelay('/admin/update', params);
   return ret;
 }

@@ -97,7 +97,7 @@ const resetForm = (formEl: FormInstance | undefined) => {
 }
 
 onMounted(() => {
-  if(userStore.user.id){
+  if(userStore.user.loginId){
     router.push('/index')
   }
 })
