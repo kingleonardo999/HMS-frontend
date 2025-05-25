@@ -1,4 +1,4 @@
-import { $get, $post } from '../utils/request'
+import { $get, $post, showLoading, hideLoading } from '../utils/request'
 
 // 返回角色列表
 export const $list = async () => {
@@ -8,7 +8,9 @@ export const $list = async () => {
 
 // 添加角色
 export const $add = async (params: object) => {
+  showLoading();
   let ret = await $post('/role/add', params);
+  hideLoading();
   return ret;
 }
 
@@ -26,6 +28,8 @@ export const $getOne = async (params: object) => {
 
 // 更新角色
 export const $update = async (params: object) => {
+  showLoading();
   let ret = await $post('/role/update', params);
+  hideLoading();
   return ret;
 }

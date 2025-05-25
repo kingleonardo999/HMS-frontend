@@ -95,7 +95,7 @@ import {
   ChatDotRound,
   Avatar,
 } from '@element-plus/icons-vue';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, onUnmounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter, useRoute } from 'vue-router';
 import useUser from '../store/user';
@@ -110,11 +110,27 @@ watch(() => route.path, (newPath) => {
   activeMenu.value = newPath;
 }, { immediate: true });
 
+// 处理窗口大小变化
+const handleResize = () => {
+  // 强制重新计算布局
+  document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+  document.documentElement.style.setProperty('--vw', `${window.innerWidth * 0.01}px`);
+};
 
 onMounted(() => {
   if(!userStore.user.loginId){
     router.push('/')
   }
+  
+  // 初始化视口单位
+  handleResize();
+  // 监听窗口大小变化
+  window.addEventListener('resize', handleResize);
+})
+
+onUnmounted(() => {
+  // 清理事件监听器
+  window.removeEventListener('resize', handleResize);
 })
 
 // 退出系统
@@ -146,6 +162,11 @@ let exit = () => {
 .index {
   width: 100vw;
   height: 100vh;
+  min-width: 100vw;
+  min-height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  overflow: hidden;
   display: flex;
 
   .left {
@@ -168,9 +189,11 @@ let exit = () => {
     flex: 1;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 
     .top {
       height: 60px;
+      min-height: 60px;
       background-color: #142334;
       color: white;
       display: flex;
@@ -182,6 +205,7 @@ let exit = () => {
 
     .content {
       flex: 1;
+      overflow: auto;
     }
   }
 }

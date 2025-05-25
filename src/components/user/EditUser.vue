@@ -73,11 +73,6 @@
         <el-button type="primary" @click="submitForm(formRef)">{{ isEditing ? '修改' : '添加' }}</el-button>
         <el-button @click="resetForm(formRef)">取消</el-button>
       </el-form-item>
-      <el-form-item>
-        <div style="color: #909399; font-size: 12px;">
-          带 * 号的为必填选项
-        </div>
-      </el-form-item>
     </el-form>
   </el-drawer>
 </template>
@@ -151,6 +146,18 @@ const checkPassword = () => {
   passwordMismatch.value = formData.value.loginPwd !== formData.value.confirmPwd;
 };
 
+// 验证电话号，且以1开头
+const validatePhone = (rule: any, value: string, callback: any) => {
+  const phoneRegex = /^1\d{10}$/; // 正则表达式
+  if (value === '') {
+    callback(new Error('请输入电话号码'));
+  } else if (!phoneRegex.test(value)) {
+    callback(new Error('请输入有效的电话号码'));
+  } else {
+    callback();
+  }
+};
+
 // 验证对象
 const rules = reactive<FormRules<typeof formData>>({
   loginId: [{ required: true, message: '请输入用户账号', trigger: 'blur' }],
@@ -160,7 +167,7 @@ const rules = reactive<FormRules<typeof formData>>({
     { validator: validateConfirmPwd, trigger: 'blur' } // 新增确认密码的校验规则
   ],
   name: [{ required: true, message: '请输入名字', trigger: 'blur' }],
-  phone: [{ required: true, message: '请输入电话号码', trigger: 'blur' }],
+  phone: [{ required: true, validator: validatePhone, trigger: 'blur' }],
 });
 
 // 定义角色类型

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { baseURL_dev } from '../config/baseURL'
+import { ElLoading } from 'element-plus'
 
 // 初始化一个axios对象
 const instance = axios.create({
@@ -12,11 +13,34 @@ const delayInstance = axios.create({
   timeout: 10000,
 });
 
+// 全局加载实例
+let loadingInstance: any = null;
+
+// 显示加载状态
+export const showLoading = () => {
+  if (!loadingInstance) {
+    loadingInstance = ElLoading.service({
+      lock: true,
+      text: '正在处理中...',
+      background: 'rgba(0, 0, 0, 0.7)',
+    });
+  }
+};
+
+// 隐藏加载状态
+export const hideLoading = () => {
+  if (loadingInstance) {
+    loadingInstance.close();
+    loadingInstance = null;
+  }
+};
+
 // get请求方法
 export const $get = async (url:string, params?:object) => {
   let { data } = await instance.get(url, { params: params });
   return data;
 };
+
 export const $getDelay = async (url:string, params?:object) => {
   let { data } = await delayInstance.get(url, { params: params });
   return data;
@@ -27,6 +51,7 @@ export const $post = async (url:string, params?:object) => {
   let { data } = await instance.post(url, params);
   return data;
 };
+
 export const $postDelay = async (url:string, params?:object) => {
   let { data } = await delayInstance.post(url, params);
   return data;

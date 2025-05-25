@@ -45,16 +45,16 @@
   </el-table>
   <el-pagination style="margin-top: 5px;" small background layout="prev, pager, next" 
   :total="total" v-model:current-page="pageIndex" @current-change="loadUsers"/>
-  <EditUser ref="editRef" :role-list="roleList" @sync-list="loadUsers"></EditUser>
+  <EditUser ref="editRef" :roleList="roleList" @sync-list="loadUsers"></EditUser>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { $userList, $delete, $getOne } from '../../api/admin';
+import { $list, $delete, $getOne } from '../../api/admin';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import EditUser from '../../components/user/EditUser.vue';
-import { $list } from '../../api/role';
+import { $list as $roleList } from '../../api/role';
 import type { Role } from '../../views/user/Role.vue';
 
 type User = {
@@ -79,7 +79,7 @@ const roleList = ref<Role[]>([]);
 const roleList_sql = ref<Role[]>([]); // 角色列表
 // 加载角色列表
 const loadRoleList = async () => {
-  const ret = await $list();
+  const ret = await $roleList();
   roleList.value = ret;
   // 深拷贝
   roleList_sql.value = JSON.parse(JSON.stringify(ret));
@@ -91,7 +91,7 @@ let roleId = ref<number>(0); // 角色ID
 
 // 加载所有用户
 const loadUsers = async () => {
-  let ret = await $userList({
+  let ret = await $list({
     pageIndex:pageIndex.value,
     pageSize:pageSize.value,
     roleId: roleId.value
@@ -172,6 +172,7 @@ onMounted(() => {
     font-size: 14px;
     font: "Noto Sans SC";
     color: #909399;
+    margin-left: 10px;
   }
 }
 </style>

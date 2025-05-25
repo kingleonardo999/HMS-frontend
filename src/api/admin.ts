@@ -1,4 +1,4 @@
-import { $get, $post, $postDelay } from '../utils/request';
+import { $get, $post, $postDelay, showLoading, hideLoading } from '../utils/request';
 import { md5 } from 'md5js';
 import { ElNotification } from 'element-plus'
 
@@ -45,7 +45,7 @@ export const $getOne = async (params:object) => {
 }
 
 // 获取用户列表
-export const $userList = async (params:object) => {
+export const $list = async (params:object) => {
   let ret = await $get('/admin/list', params);
   return ret;
 }
@@ -58,7 +58,9 @@ interface addParams {
 export const $add = async (params: addParams) => {
   // 加密密码
   params.loginPwd = md5(md5(params.loginPwd, 32).split('').reverse().join(''), 32);
+  showLoading();
   let ret = await $postDelay('/admin/add', params);
+  hideLoading();
   return ret;
 }
 
@@ -70,6 +72,22 @@ export const $delete = async (params: object) => {
 
 // 更新角色
 export const $update = async (params: object) => {
+  showLoading();
   let ret = await $postDelay('/admin/update', params);
+  hideLoading();
+  return ret;
+}
+
+interface resetPwdParams {
+  loginId: string; // 登录名
+  loginPwd: string; // 登录密码
+  newLoginPwd: string; // 新登录密码
+}
+// 修改密码
+export const $resetPwd = async (params: resetPwdParams) => {
+  // 对密码进行 md5 加密
+  params.loginPwd = md5(md5(params.loginPwd, 32).split('').reverse().join(''), 32);
+  params.newLoginPwd = md5(md5(params.newLoginPwd, 32).split('').reverse().join(''), 32);
+  let ret = await $post('/admin/resetPwd', params);
   return ret;
 }

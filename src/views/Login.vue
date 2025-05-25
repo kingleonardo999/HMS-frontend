@@ -26,7 +26,7 @@
 
 <script setup lang="ts">
 // 导入组合式API
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref, onUnmounted } from 'vue'
 // 导入路由器
 import { useRouter } from 'vue-router'
 // 导入全局状态管理
@@ -96,10 +96,27 @@ const resetForm = (formEl: FormInstance | undefined) => {
   formEl.resetFields()
 }
 
+// 处理窗口大小变化
+const handleResize = () => {
+  // 强制重新计算布局
+  document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+  document.documentElement.style.setProperty('--vw', `${window.innerWidth * 0.01}px`);
+};
+
 onMounted(() => {
   if(userStore.user.loginId){
     router.push('/index')
   }
+  
+  // 初始化视口单位
+  handleResize();
+  // 监听窗口大小变化
+  window.addEventListener('resize', handleResize);
+})
+
+onUnmounted(() => {
+  // 清理事件监听器
+  window.removeEventListener('resize', handleResize);
 })
 </script>
 
@@ -107,6 +124,11 @@ onMounted(() => {
 .login {
   width: 100vw;
   height: 100vh;
+  min-width: 100vw;
+  min-height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  overflow: hidden;
   background: linear-gradient(to bottom, #142334, #6894c7);
   display: flex;
   justify-content: center;
