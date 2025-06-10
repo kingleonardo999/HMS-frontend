@@ -43,17 +43,17 @@
       <el-form-item label="电话号码" prop="phone">
         <el-input v-model="formData.phone" />
       </el-form-item>
-      <el-form-item label="角色" prop="roleName">
+      <el-form-item label="角色" prop="roleId">
         <el-select
-          v-model="formData.roleName"
-          placeholder="user"
+          v-model="formData.roleId"
+          placeholder="admin"
           style="width: 240px"
         >
           <el-option
             v-for="item in props.roleList"
             :key="item.roleId"
             :label="item.roleName"
-            :value="item.roleName"
+            :value="item.roleId"
           />
         </el-select>
       </el-form-item>
@@ -116,7 +116,7 @@ interface EditUser {
   name: string;
   phone: string;
   photo: string;
-  roleName: string;
+  roleId: number;
   loginId: string;
 }
 
@@ -168,6 +168,7 @@ const rules = reactive<FormRules<typeof formData>>({
   ],
   name: [{ required: true, message: '请输入名字', trigger: 'blur' }],
   phone: [{ required: true, validator: validatePhone, trigger: 'blur' }],
+  roleId: [{ required: true, message: '请选择角色', trigger: 'blur' }],
 });
 
 // 定义角色类型
@@ -189,7 +190,7 @@ const emptyForm = {
   name: '',
   phone: '',
   photo: '',
-  roleName: '',
+  roleId: 1, // 默认角色ID为1（admin）
 };
 
 // 保存原始用户数据，用于"取消"操作时恢复

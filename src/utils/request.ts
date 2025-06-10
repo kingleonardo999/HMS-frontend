@@ -63,7 +63,7 @@ instance.interceptors.request.use(function (config){
   // 在发送请求之前做些什么
   // console.log(config);
   // 每次发送请求之前都要判断是否有 token，如果有就将 token 添加到请求头中
-  config.headers['token'] = sessionStorage.getItem('token') || ''; // 设置请求头
+  config.headers['Authorization'] = sessionStorage.getItem('token') || ''; // 设置请求头
   return config;
 }, function (error) {
   // 对请求错误做些什么
@@ -73,7 +73,7 @@ delayInstance.interceptors.request.use(function (config){
   // 在发送请求之前做些什么
   // console.log(config);
   // 每次发送请求之前都要判断是否有 token，如果有就将 token 添加到请求头中
-  config.headers['token'] = sessionStorage.getItem('token') || ''; // 设置请求头
+  config.headers['Authorization'] = sessionStorage.getItem('token') || ''; // 设置请求头
   return config;
 }, function (error) {
   // 对请求错误做些什么

@@ -310,54 +310,45 @@ const submitForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return;
   formEl.validate(async (valid) => {
     if (valid) {
-      try {
-        if (isEditing.value) {
-          // 修改房间
-          let ret = await $update(formData.value);
-          if (ret.success) {
-            ElNotification({
-              title: '提示',
-              message: ret.message,
-              type: 'success',
-            });
-            // 通知父组件更新列表
-            emit('sync-list');
-            // 关闭抽屉
-            closeDrawer();
-          } else {
-            ElNotification({
-              title: '提示',
-              message: ret.message,
-              type: 'error',
-            });
-          }
+      if (isEditing.value) {
+        // 修改房间
+        let ret = await $update(formData.value);
+        if (ret.success) {
+          ElNotification({
+            title: '提示',
+            message: ret.message,
+            type: 'success',
+          });
+          // 通知父组件更新列表
+          emit('sync-list');
+          // 关闭抽屉
+          closeDrawer();
         } else {
-          let ret = await $add(formData.value);
-          if (ret.success) {
-            ElNotification({
-              title: '提示',
-              message: ret.message,
-              type: 'success',
-            });
-            // 通知父组件更新列表
-            emit('sync-list');
-            // 关闭抽屉
-            closeDrawer();
-          } else {
-            ElNotification({
-              title: '提示',
-              message: ret.message,
-              type: 'error',
-            });
-          }
+          ElNotification({
+            title: '提示',
+            message: ret.message,
+            type: 'error',
+          });
         }
-      } catch (error) {
-        console.error('提交失败:', error)
-        ElNotification({
-          title: '提示',
-          message: '操作失败，请重试',
-          type: 'error',
-        });
+      } else {
+        let ret = await $add(formData.value);
+        if (ret.success) {
+          ElNotification({
+            title: '提示',
+            message: ret.message,
+            type: 'success',
+          });
+          // 通知父组件更新列表
+          emit('sync-list');
+          // 关闭抽屉
+          closeDrawer();
+        } else {
+          ElNotification({
+            title: '提示',
+            message: ret.message,
+            type: 'error',
+          });
+        }
       }
     }
   });

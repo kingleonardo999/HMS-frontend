@@ -1,5 +1,4 @@
 import { $get, $post, $postDelay, showLoading, hideLoading } from '../utils/request';
-import { md5 } from 'md5js';
 import { ElNotification } from 'element-plus'
 
 interface LoginParams {
@@ -10,72 +9,114 @@ interface LoginParams {
 interface LoginResponse {
   success: boolean; // 是否登录成功
   message: string; // 提示信息
-  [key:string]: any; // 提示信息
+  token?: string; // 登录成功后返回的 token
 }
 
 // 登录方法
 export const $login = async (params:LoginParams) => {
-  // 对密码进行 md5 加密
-  params.loginPwd = md5(md5(params.loginPwd, 32).split('').reverse().join(''), 32);
-  let ret:LoginResponse = await $post('/admin/login', params);
-  if (ret.success) {
-    // 登录成功后将 token 存入浏览器缓存中
-    sessionStorage.setItem('token', ret.token);
-    // sessionStorage.setItem 在浏览器关闭后会自动清除
-    // localStorage.setItem 永久存储
+  try {
+    let ret:LoginResponse = await $post('/admin/login', params);
+    if (ret.success) {
+      // 登录成功后将 token 存入浏览器缓存中
+      sessionStorage.setItem('token', ret.token? ret.token : '');
+      // sessionStorage.setItem 在浏览器关闭后会自动清除
+      // localStorage.setItem 永久存储
+      ElNotification({
+        title: '通知',
+        message: ret.message,
+        type: 'success',
+      });
+    } else {
+      ElNotification({
+        title: '通知',
+        message: ret.message,
+        type: 'error',
+      })
+    }
+    return ret.success;
+  } catch (error: any) {
     ElNotification({
-      title: '通知',
-      message: ret.message,
-      type: 'success',
-    });
-  } else {
-    ElNotification({
-      title: '通知',
-      message: ret.message,
-      type: 'error',
-    })
+        title: '通知',
+        message: error.response?.data?.message || error.message || '请求失败',
+        type: 'error',
+      })
+    return false;
   }
-  return ret.success;
 }
 
 // 获取用户信息
 export const $getOne = async (params:object) => {
-  let ret = await $get('/admin/getOne', params);
-  return ret;
+  try {
+    let ret = await $get('/admin/getOne', params);
+    return ret;
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.response?.data?.message || error.message || '获取用户信息失败'
+    };
+  }
 }
 
 // 获取用户列表
 export const $list = async (params:object) => {
-  let ret = await $get('/admin/list', params);
-  return ret;
+  try {
+    let ret = await $get('/admin/list', params);
+    return ret;
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.response?.data?.message || error.message || '获取用户列表失败'
+    };
+  }
 }
 
 interface addParams {
   loginId: string; // 登录名
   loginPwd: string; // 登录密码
 }
-// 添加角色
+// 添加用户
 export const $add = async (params: addParams) => {
-  // 加密密码
-  params.loginPwd = md5(md5(params.loginPwd, 32).split('').reverse().join(''), 32);
-  showLoading();
-  let ret = await $postDelay('/admin/add', params);
-  hideLoading();
-  return ret;
+  try {
+    showLoading();
+    let ret = await $postDelay('/admin/add', params);
+    hideLoading();
+    return ret;
+  } catch (error: any) {
+    hideLoading();
+    return {
+      success: false,
+      message: error.response?.data?.message || error.message || '网络请求失败'
+    };
+  }
 }
 
-// 删除角色
+// 删除用户
 export const $delete = async (params: object) => {
-  let ret = await $post('/admin/delete', params);
-  return ret;
+  try {
+    let ret = await $post('/admin/delete', params);
+    return ret;
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.response?.data?.message || error.message || '删除用户失败'
+    };
+  }
 }
 
-// 更新角色
+// 更新用户
 export const $update = async (params: object) => {
-  showLoading();
-  let ret = await $postDelay('/admin/update', params);
-  hideLoading();
-  return ret;
+  try {
+    showLoading();
+    let ret = await $postDelay('/admin/update', params);
+    hideLoading();
+    return ret;
+  } catch (error: any) {
+    hideLoading();
+    return {
+      success: false,
+      message: error.response?.data?.message || error.message || '网络请求失败'
+    };
+  }
 }
 
 interface resetPwdParams {
@@ -85,9 +126,13 @@ interface resetPwdParams {
 }
 // 修改密码
 export const $resetPwd = async (params: resetPwdParams) => {
-  // 对密码进行 md5 加密
-  params.loginPwd = md5(md5(params.loginPwd, 32).split('').reverse().join(''), 32);
-  params.newLoginPwd = md5(md5(params.newLoginPwd, 32).split('').reverse().join(''), 32);
-  let ret = await $post('/admin/resetPwd', params);
-  return ret;
+  try {
+    let ret = await $post('/admin/resetPwd', params);
+    return ret;
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.response?.data?.message || error.message || '修改密码失败'
+    };
+  }
 }

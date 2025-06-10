@@ -2,34 +2,71 @@ import { $get, $post, $postDelay, showLoading, hideLoading } from '../utils/requ
 
 // 获取房型列表
 export const $list = async () => {
-  let ret = await $get('/roomType/list');
-  return ret;
+  try {
+    let ret = await $get('/roomType/list');
+    return ret;
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.response?.data?.message || error.message || '获取房型列表失败'
+    };
+  }
 };
 
 // 添加房型
 export const $add = async (data: object) => {
-  showLoading();
-  let ret = await $postDelay('/roomType/add', data);
-  hideLoading();
-  return ret;
+  try {
+    showLoading();
+    let ret = await $postDelay('/roomType/add', data);
+    hideLoading();
+    return ret;
+  } catch (error: any) {
+    hideLoading();
+    return {
+      success: false,
+      message: error.response?.data?.message || error.message || '添加房型失败'
+    };
+  }
 };
 
 // 修改房型
 export const $update = async (data: object) => {
-  showLoading();
-  let ret = await $postDelay('/roomType/update', data);
-  hideLoading();
-  return ret;
+  try {
+    showLoading();
+    let ret = await $postDelay('/roomType/update', data);
+    hideLoading();
+    return ret;
+  } catch (error: any) {
+    hideLoading();
+    return {
+      success: false,
+      message: error.response?.data?.message || error.message || '修改房型失败'
+    };
+  }
 };
 
 // 删除房型
 export const $delete = async (data: object) => {
-  let ret = await $post('/roomType/delete', data);
-  return ret;
+  try {
+    let ret = await $post('/roomType/delete', data);
+    return ret;
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.response?.data?.message || error.message || '删除房型失败'
+    };
+  }
 };
 
 // 获取房型详情
 export const $getDetail = async (data: object) => {
-  let ret = await $get('/roomType/detail', data);
-  return ret;
+  try {
+    let ret = await $get('/roomType/detail', data);
+    return ret;
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.response?.data?.message || error.message || '获取房型详情失败'
+    };
+  }
 };
