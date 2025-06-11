@@ -69,103 +69,14 @@ import { reactive, ref, onBeforeUnmount, shallowRef, nextTick } from 'vue';
 import { $add, $update } from '../../api/room';
 import '@wangeditor/editor/dist/css/style.css' // 引入 css
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
-import { baseURL_dev } from '../../config/baseURL';
+import { createRichTextEditorConfig } from '../../utils/file';
 
 const emit = defineEmits(['sync-list']);
 
 // 富文本编辑器
 const editorRef = shallowRef()
 const showEditor = ref(true)
-const editorConfig = { 
-  placeholder: '请输入内容...',
-  MENU_CONF: {
-    uploadImage: {
-      // 自定义上传
-      async customUpload(file: File, insertFn: Function) {
-        try {
-          // 上传前校验
-          const imgTypes = ['image/jpeg', 'image/png', 'image/gif'];
-          if (!imgTypes.includes(file.type)) {
-            ElNotification({
-              title: '提示',
-              message: '请上传标准的图片文件!',
-              type: 'error',
-            });
-            return;
-          }
-          
-          if (file.size / 1024 / 1024 > 5) {
-            ElNotification({
-              title: '提示',
-              message: '文件大小不能超过5MB!',
-              type: 'error',
-            });
-            return;
-          }
-          
-          // 创建FormData
-          const formData = new FormData();
-          formData.append('file', file);
-          
-          // 上传图片
-          const response = await fetch(baseURL_dev + '/admin/uploadImg', {
-            method: 'POST',
-            body: formData
-          });
-          
-          if (response.ok) {
-            const result = await response.json();
-            const { url, success, message } = result;
-            
-            if (success) {
-              ElNotification({
-                title: '提示',
-                message: message,
-                type: 'success',
-              });
-              
-              // 处理图片URL
-              let imageUrl;
-              if (url.startsWith('http') || url.startsWith('https')) {
-                // 如果是完整的URL，则直接使用
-                imageUrl = url;
-              } else {
-                imageUrl = baseURL_dev + url;
-              }
-              
-              // 插入图片到编辑器
-              insertFn(imageUrl, file.name, '');
-            } else {
-              ElNotification({
-                title: '图片上传失败',
-                message: message || '上传失败，请重试',
-                type: 'error',
-              });
-            }
-          } else {
-            throw new Error('上传请求失败');
-          }
-        } catch (error) {
-          console.error('图片上传错误:', error);
-          ElNotification({
-            title: '图片上传失败',
-            message: '网络错误，请重试',
-            type: 'error',
-          });
-        }
-      },
-      
-      // 单个文件的最大体积限制，默认为 2M
-      maxFileSize: 5 * 1024 * 1024, // 5M
-      
-      // 最高可上传几个文件，默认为 100
-      maxNumberOfFiles: 10, 
-      
-      // 选择文件时的类型限制，默认为 ['image/*'] 。如不想限制，则设置为 []
-      allowedFileTypes: ['image/*'],
-    }
-  }
-}
+const editorConfig = createRichTextEditorConfig()
 
 const handleCreated = (editor: any) => {
   editorRef.value = editor

@@ -57,15 +57,16 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="头像" prop="photo">
+      <el-form-item label="头像" prop="imgId">
         <el-upload
           class="avatar-uploader"
-          :action="baseURL_dev + '/admin/uploadImg'"
+          :action="baseURL_dev + '/uploads/img'"
           :show-file-list="false"
           :on-success="uploadSuccess"
           :before-upload="beforeUpload"
+          :headers="uploadHeaders"
         >
-          <img v-if="formData.photo" :src=formData.photo class="avatar" />
+          <img v-if="imageUrl" :src="imageUrl" class="avatar" />
           <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
         </el-upload>
       </el-form-item>
@@ -83,6 +84,7 @@ import { reactive, ref } from 'vue';
 import { $add, $update } from '../../api/admin';
 import { Plus } from '@element-plus/icons-vue'
 import { baseURL_dev } from '../../config/baseURL';
+import { createUploadSuccessHandler, beforeUploadHandler, getUploadHeaders, processImageUrlSync } from '../../utils/file';
 
 const emit = defineEmits(['sync-list']);
 
@@ -107,6 +109,7 @@ const closeDrawer = () => {
   originalUserData.value = null;
   isEditing.value = false; // 重置编辑状态
   passwordMismatch.value = false;
+  imageUrl.value = ''; // 清空图片URL
   
   drawer.value = false;
 };
@@ -115,9 +118,11 @@ const closeDrawer = () => {
 interface EditUser {
   name: string;
   phone: string;
-  photo: string;
+  imgId?: number; // 用于提交到服务器
   roleId: number;
   loginId: string;
+  roleName?: string; // 添加可选的roleName字段，用于从后端获取数据时的转换
+  photo?: string; // 添加photo字段，用于从后端获取数据
 }
 
 // 定义表单数据类型
@@ -189,7 +194,7 @@ const emptyForm = {
   confirmPwd: '',
   name: '',
   phone: '',
-  photo: '',
+  imgId: undefined,
   roleId: 1, // 默认角色ID为1（admin）
 };
 
@@ -201,60 +206,56 @@ const initFormData = (data?: UserFormData) => {
   if (data) {
     // 深拷贝一份数据，以便在取消时恢复
     originalUserData.value = JSON.parse(JSON.stringify(data));
-    formData.value = { ...data };
+    
+    // 处理角色ID转换
+    const processedData = { ...data };
+    
+    // 如果数据中包含roleName但没有roleId，需要根据roleName找到对应的roleId
+    if (!processedData.roleId && processedData.roleName && props.roleList) {
+      const matchedRole = props.roleList.find(role => role.roleName === processedData.roleName);
+      if (matchedRole) {
+        processedData.roleId = matchedRole.roleId;
+      }
+    }
+    
+    // 处理图片数据 - 直接处理photo字段
+    if (processedData.photo) {
+      // 直接设置图片URL用于显示
+      imageUrl.value = processImageUrlSync(processedData.photo)
+    }
+    
+    // 确保必要的字段存在（编辑模式下不需要密码）
+    if (!processedData.loginPwd) {
+      processedData.loginPwd = '';
+    }
+    if (!processedData.confirmPwd) {
+      processedData.confirmPwd = '';
+    }
+    
+    formData.value = processedData;
     isEditing.value = true; // 如果传入了数据，则设置为编辑模式
   } else {
     originalUserData.value = { ...emptyForm };
     formData.value = { ...emptyForm };
     isEditing.value = false; // 如果没有传入数据，则设置为添加模式
+    imageUrl.value = '' // 清空图片URL
   }
   
   // 重置密码不匹配的提示
   passwordMismatch.value = false;
 };
 
-// 上传头像成功的回调函数
-const uploadSuccess: UploadProps['onSuccess'] = (
-  response,
-  uploadFile
-) => {
-  let {url, success, message} = response;
-  if(success) {
-    ElNotification({
-      title: '提示',
-      message: message,
-      type: 'success',
-    })
-    // 获取到返回的图片地址
-    if(url.startsWith('http') || url.startsWith('https')) {
-      // 如果是完整的URL，则直接使用
-      formData.value.photo = url;
-    } else {
-      formData.value.photo = baseURL_dev + url;
-    }
-  }
-}
+// 图片URL状态
+const imageUrl = ref('')
 
-// 上传头像之前的校验函数
-const beforeUpload: UploadProps['beforeUpload'] = (rawFile) => {
-  let imgTypes = ['image/jpeg', 'image/png', 'image/gif'];
-  if (!imgTypes.includes(rawFile.type)) {
-    ElNotification({
-      title: '提示',
-      message: '请上传标准的图片文件!',
-      type: 'error',
-    })
-    return false
-  } else if (rawFile.size / 1024 / 1024 > 5) {
-    ElNotification({
-      title: '提示',
-      message: '文件大小不能超过5MB!',
-      type: 'error',
-    })
-    return false
-  }
-  return true
-}
+// 上传头像成功的回调函数（使用工具函数）
+const uploadSuccess = createUploadSuccessHandler(formData, imageUrl) // 传入 imageUrl 引用
+
+// 上传头像之前的校验函数（使用工具函数）
+const beforeUpload = beforeUploadHandler
+
+// 上传组件的请求头配置（使用工具函数）
+const uploadHeaders = getUploadHeaders()
 
 // 提交表单
 const submitForm = (formEl: FormInstance | undefined) => {
@@ -311,9 +312,16 @@ const resetForm = (formEl: FormInstance | undefined) => {
   if (isEditing.value && originalUserData.value) {
     // 在编辑模式下，恢复原始数据
     formData.value = { ...originalUserData.value };
+    // 恢复图片显示
+    if (originalUserData.value.photo) {
+      imageUrl.value = processImageUrlSync(originalUserData.value.photo);
+    } else {
+      imageUrl.value = '';
+    }
   } else {
     // 在添加模式下，清空表单
     formData.value = { ...emptyForm };
+    imageUrl.value = '';
   }
   
   // 确保重置密码不匹配的提示

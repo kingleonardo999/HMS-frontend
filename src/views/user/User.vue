@@ -25,7 +25,7 @@
     <el-table-column prop="roleName" label="角色" width="150"/>
     <el-table-column label="头像" width="100">
       <template #default="scope">
-        <img :src="scope.row.photo" alt="头像" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover;">
+        <img :src="getDisplayImageUrl(scope.row.photo)" alt="头像" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover;">
       </template>
     </el-table-column>
     <el-table-column label="操作">
@@ -56,6 +56,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import EditUser from '../../components/user/EditUser.vue';
 import { $list as $roleList } from '../../api/role';
 import type { Role } from '../../views/user/Role.vue';
+import { baseURL_dev } from '../../config/baseURL';
 
 type User = {
   id: number;
@@ -152,6 +153,21 @@ const handleDelete = (loginId: string) => {
     .catch(() => {
       // 取消退出，不做任何操作
     })
+};
+
+// 处理图片URL显示
+const getDisplayImageUrl = (photo: string): string => {
+  if (!photo) {
+    return ''; // 如果没有头像，返回空字符串
+  }
+  
+  // 判断是否为完整URL
+  if (photo.startsWith('http://') || photo.startsWith('https://')) {
+    return photo;
+  }
+  
+  // 如果不是完整URL，拼接baseURL
+  return baseURL_dev + '/' + photo.replace(/^\//, '');
 };
 
 // 定义编辑组件ref
