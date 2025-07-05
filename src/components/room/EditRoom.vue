@@ -27,13 +27,13 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="状态" prop="roomStatus">
-        <el-select v-model="formData.roomStatus" placeholder="请选择房间状态">
+      <el-form-item label="状态" prop="roomStatusId">
+        <el-select v-model="formData.roomStatusId" placeholder="请选择房间状态">
             <el-option
             v-for="item in isEditing ? roomStatusList : roomStatusListCreate"
-            :key="item.statusName"
+            :key="item.statusId"
             :label="item.statusName"
-            :value="item.statusName"
+            :value="item.statusId"
             />
         </el-select>
       </el-form-item>
@@ -96,7 +96,7 @@ const isEditing = ref(false);
 const emptyForm = {
   roomId: undefined,
   roomTypeId: undefined,
-  roomStatus: '',
+  roomStatusId: undefined,
   roomDescription: '',
 };
 
@@ -150,7 +150,7 @@ const closeDrawer = () => {
 interface EditRoom {
   roomId: number | undefined;
   roomTypeId: number | undefined;
-  roomStatus: string;
+  roomStatusId: number | undefined;
   roomDescription: string;
 }
 
@@ -158,7 +158,7 @@ interface EditRoom {
 const formData = ref<EditRoom>({
   roomId: undefined,
   roomTypeId: undefined,
-  roomStatus: '',
+  roomStatusId: undefined,
   roomDescription: '',
 });
 
@@ -180,7 +180,7 @@ const roomIdRule = (rule: any, value: string, callback: any) => {
 const rules = reactive<FormRules<typeof formData>>({
   roomId: [{ required: true, validator: roomIdRule, trigger: 'blur' }],
   roomTypeId: [{ required: true, message: '请选择房间类型', trigger: 'blur' }],
-  roomStatus: [{ required: true, message: '请选择房间状态', trigger: 'blur' }],
+  roomStatusId: [{ required: true, message: '请选择房间状态', trigger: 'blur' }],
 });
 
 // 定义房间类型
@@ -190,6 +190,7 @@ interface RoomType {
 }
 
 interface RoomStatus {
+  statusId: number;
   statusName: string;
 }
 

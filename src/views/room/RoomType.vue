@@ -23,7 +23,8 @@
       </template>
     </el-table-column>
   </el-table>
-  <el-pagination style="margin-top: 5px;" small background layout="prev, pager, next" :total="list.length" v-model:current-page="pageIndex" />
+  <el-pagination style="margin-top: 5px;" small background layout="prev, pager, next" 
+  :total="list.length" v-model:current-page="pageIndex" />
   <EditRoomType ref="editRef" @sync-list="loadList"></EditRoomType>
   </div>
 </template>

@@ -17,10 +17,10 @@
           <el-input v-model="formData.roomTypeName" />
         </el-form-item>
         <el-form-item label="价格" prop="roomTypePrice">
-          <el-input v-model="formData.roomTypePrice" />
+          <el-input v-model.number="formData.roomTypePrice" type="number"/>
         </el-form-item>
         <el-form-item label="床位" prop="bedNum">
-          <el-input v-model="formData.bedNum" />
+          <el-input v-model.number="formData.bedNum" type="number"/>
         </el-form-item>
         <el-form-item label="描述" prop="typeDescription">
           <div style="border: 1px solid #ddd;">

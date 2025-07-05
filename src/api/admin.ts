@@ -1,4 +1,4 @@
-import { $get, $post, $postDelay, showLoading, hideLoading } from '../utils/request';
+import { $get, $post } from '../utils/request';
 import { ElNotification } from 'element-plus'
 
 interface LoginParams {
@@ -77,12 +77,9 @@ interface addParams {
 // 添加用户
 export const $add = async (params: addParams) => {
   try {
-    showLoading();
-    let ret = await $postDelay('/admin/add', params);
-    hideLoading();
+    let ret = await $post('/admin/add', params);
     return ret;
   } catch (error: any) {
-    hideLoading();
     return {
       success: false,
       message: error.response?.data?.message || error.message || '网络请求失败'
@@ -106,12 +103,9 @@ export const $delete = async (params: object) => {
 // 更新用户
 export const $update = async (params: object) => {
   try {
-    showLoading();
-    let ret = await $postDelay('/admin/update', params);
-    hideLoading();
+    let ret = await $post('/admin/update', params);
     return ret;
   } catch (error: any) {
-    hideLoading();
     return {
       success: false,
       message: error.response?.data?.message || error.message || '网络请求失败'

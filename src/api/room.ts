@@ -1,4 +1,4 @@
-import { $get, $post, $postDelay, showLoading, hideLoading } from '../utils/request'
+import { $get, $post } from '../utils/request'
 
 // 房间列表
 export const $list = async (params: any) => {
@@ -29,12 +29,9 @@ export const $getDetail = async (params: any) => {
 // 添加房间
 export const $add = async (data: any) => {
   try {
-    showLoading()
-    let ret = await $postDelay('/room/add', data)
-    hideLoading()
+    let ret = await $post('/room/add', data)
     return ret
   } catch (error: any) {
-    hideLoading()
     return {
       success: false,
       message: error.response?.data?.message || error.message || '添加房间失败'
@@ -45,12 +42,9 @@ export const $add = async (data: any) => {
 // 修改房间
 export const $update = async (data: any) => {
   try {
-    showLoading()
-    let ret = await $postDelay('/room/update', data)
-    hideLoading()
+    let ret = await $post('/room/update', data)
     return ret
   } catch (error: any) {
-    hideLoading()
     return {
       success: false,
       message: error.response?.data?.message || error.message || '修改房间失败'

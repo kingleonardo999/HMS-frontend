@@ -28,5 +28,5 @@ export default defineStore(
     };
   },{
     persist: true // 持久化存储
-  } 
+  }
 );
