@@ -1,7 +1,8 @@
 import axios from "axios";
 import { baseURL_dev } from '../config/baseURL'
-import { ElLoading } from 'element-plus'
+import { ElLoading, ElMessage, ElMessageBox } from 'element-plus'
 import router from "../router";
+import  useUser  from "../store/user";
 
 // 初始化一个axios对象
 const instance = axios.create({
@@ -11,6 +12,8 @@ const instance = axios.create({
 
 // 全局加载实例
 let loadingInstance: any = null;
+
+const userStore = useUser();
 
 // 显示加载状态
 export const showLoading = () => {
@@ -57,15 +60,58 @@ instance.interceptors.request.use(function (config){
 
 // 响应拦截器
 instance.interceptors.response.use(function (response) {
-  // 对响应数据做点什么
+  // 2xx 状态码会执行这里
+  // 例如：200 成功、201 创建成功等
   return response;
 }, function (error) {
-  // 对响应错误做点什么
-  if (error.response.status === 401) {
+  // 非 2xx 状态码或网络错误会执行这里
+  // 例如：401 未授权、404 未找到、500 服务器错误、网络超时等
+  if (error.response && error.response.status === 401) {
     // token 过期
     sessionStorage.removeItem('token');
-    sessionStorage.removeItem('user');
-    router.push('/login');
+    
+    exit();
+    return null;
   }
   return Promise.reject(error);
 });
+
+// 退出系统标记，防止短时间内多次弹出
+let exitDialogShowing = false;
+
+// 退出系统
+let exit = () => {
+  // 如果对话框已经显示，则不再重复显示
+  if (exitDialogShowing) {
+    return;
+  }
+  
+  exitDialogShowing = true;
+  
+  // 弹出通知框
+  ElMessageBox.alert(
+    '登录过期, 请重新登录',
+    '系统提示',
+    {
+      confirmButtonText: '确定',
+      type: 'warning',
+      closeOnClickModal: false, // 禁止点击遮罩关闭
+      showCancelButton: false, // 不显示取消按钮
+    }
+  ).then(() => {
+    // 确定退出，清除用户信息，并跳转到登录页面
+    userStore.clearUser();
+    router.push('/');
+    ElMessage({
+      type: 'success',
+      message: '退出成功',
+    })
+  }).catch(() => {
+    // 处理取消或关闭的情况，也执行退出逻辑
+    userStore.clearUser();
+    router.push('/');
+  }).finally(() => {
+    // 重置标记
+    exitDialogShowing = false;
+  })
+};

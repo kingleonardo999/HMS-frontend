@@ -1,5 +1,5 @@
 import router from '../router';
 
-export function toIndex() {
+export function change() {
   router.push('/index/role');
 }
