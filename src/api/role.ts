@@ -1,4 +1,4 @@
-import { $get, $post, showLoading, hideLoading } from '../utils/request'
+import { $get, $post, } from '../utils/request'
 
 // 返回角色列表
 export const $list = async () => {
@@ -16,12 +16,9 @@ export const $list = async () => {
 // 添加角色
 export const $add = async (params: object) => {
   try {
-    showLoading();
     let ret = await $post('/role/add', params);
-    hideLoading();
     return ret;
   } catch (error: any) {
-    hideLoading();
     return {
       success: false,
       message: error.response?.data?.message || error.message || '添加角色失败'
@@ -58,12 +55,9 @@ export const $getOne = async (params: object) => {
 // 更新角色
 export const $update = async (params: object) => {
   try {
-    showLoading();
     let ret = await $post('/role/update', params);
-    hideLoading();
     return ret;
   } catch (error: any) {
-    hideLoading();
     return {
       success: false,
       message: error.response?.data?.message || error.message || '更新角色失败'

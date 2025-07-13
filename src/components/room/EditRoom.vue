@@ -100,8 +100,8 @@ const emptyForm = {
   roomDescription: '',
 };
 
-// 保存原始用户数据，用于"取消"操作时恢复
-const originalUserData = ref();
+// 保存原始房间数据，用于"取消"操作时恢复
+const originalRoomData = ref();
 
 // 关闭抽屉处理
 const handleDrawerClose = (done: () => void) => {
@@ -136,7 +136,7 @@ const cleanupForm = () => {
     formRef.value.resetFields()
   }
   formData.value = { ...emptyForm }
-  originalUserData.value = null
+  originalRoomData.value = null
   isEditing.value = false
   drawer.value = false
 }
@@ -207,11 +207,11 @@ const initFormData = (data?: EditRoom) => {
   
   if (data) {
     // 深拷贝一份数据，以便在取消时恢复
-    originalUserData.value = JSON.parse(JSON.stringify(data));
+    originalRoomData.value = JSON.parse(JSON.stringify(data));
     formData.value = { ...data };
     isEditing.value = true; // 如果传入了数据，则设置为编辑模式
   } else {
-    originalUserData.value = { ...emptyForm };
+    originalRoomData.value = { ...emptyForm };
     formData.value = { ...emptyForm };
     isEditing.value = false; // 如果没有传入数据，则设置为添加模式
   }
@@ -271,9 +271,9 @@ const resetForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return;
   formEl.resetFields();
   
-  if (isEditing.value && originalUserData.value) {
+  if (isEditing.value && originalRoomData.value) {
     // 在编辑模式下，恢复原始数据
-    formData.value = { ...originalUserData.value };
+    formData.value = { ...originalRoomData.value };
   } else {
     // 在添加模式下，清空表单
     formData.value = { ...emptyForm };
@@ -281,8 +281,8 @@ const resetForm = (formEl: FormInstance | undefined) => {
   
   // 重置编辑器内容
   if (editorRef.value) {
-    if (isEditing.value && originalUserData.value) {
-      editorRef.value.setHtml(originalUserData.value.roomDescription || '');
+    if (isEditing.value && originalRoomData.value) {
+      editorRef.value.setHtml(originalRoomData.value.roomDescription || '');
     } else {
       editorRef.value.setHtml('');
     }
