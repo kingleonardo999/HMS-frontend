@@ -30,7 +30,7 @@
       <el-form-item label="状态" prop="roomStatusId">
         <el-select v-model="formData.roomStatusId" placeholder="请选择房间状态">
             <el-option
-            v-for="item in isEditing ? roomStatusList : roomStatusListCreate"
+            v-for="item in roomStatusListCreate"
             :key="item.statusId"
             :label="item.statusName"
             :value="item.statusId"

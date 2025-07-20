@@ -8,7 +8,8 @@
       :model="formData" 
       status-icon 
       :rules="rules" 
-      label-width="40px">
+      label-width="40px"
+      @keyup.enter="submitForm(formRef)">
         <el-form-item label="账号" prop="loginId">
           <el-input v-model="formData.loginId" />
         </el-form-item>

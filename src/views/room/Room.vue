@@ -23,7 +23,7 @@
       <el-table-column prop="roomStatusName" label="状态" width="100" />
       <el-table-column label="操作">
         <template #default="scope">
-          <el-button size="small" @click="handleEdit(scope.row.roomId)">
+          <el-button size="small" @click="handleEdit(scope.row.roomId, scope.row.roomStatusName)">
             编辑
           </el-button>
           <el-button size="small" type="danger" @click="handleDelete(scope.row.roomId)">
@@ -185,7 +185,8 @@ const loadRoomStatusList = async () => {
     roomStatusList_sql.value = JSON.parse(JSON.stringify(ret.data));
     roomStatusList_sql.value.unshift({ statusId: 0, statusName: '全部' }); // 添加默认选项
     roomStatusListCreate.value = JSON.parse(JSON.stringify(ret.data));
-    roomStatusListCreate.value = roomStatusListCreate.value.filter((item) => item.statusName !== '已入住' && item.statusName !== '已预定'); // 过滤掉已入住和已预定状态
+    roomStatusListCreate.value = roomStatusListCreate.value.filter((item) => 
+      item.statusName !== '已入住' && item.statusName !== '已预定'); // 过滤掉已入住和已预定状态
   } else {
     ElMessage({
       type: 'error',
@@ -234,7 +235,14 @@ const handleAdd = () => {
 };
 
 // 编辑房间
-const handleEdit = async (roomId: number) => {
+const handleEdit = async (roomId: number, status: string) => {
+  if (!roomStatusListCreate.value.find((item) => item.statusName === status)) {
+    ElMessage({
+      type: 'error',
+      message: '不能编辑已入住和已预定状态的房间',
+    });
+    return;
+  }
   let ret = await $getDetail({ roomId: roomId });
   if (ret.success) {
     console.log(ret.data);
