@@ -57,6 +57,9 @@ import EditUser from '../../components/user/EditUser.vue';
 import { $list as $roleList } from '../../api/role';
 import type { Role } from '../../views/user/Role.vue';
 import { baseURL_dev } from '../../config/baseURL';
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
 
 type User = {
   id: number;
@@ -173,9 +176,16 @@ const getDisplayImageUrl = (photo: string): string => {
 // 定义编辑组件ref
 let editRef = ref();
 
-onMounted(() => {
-  loadUsers();
-  loadRoleList();
+onMounted(async () => {
+  await loadUsers();
+  await loadRoleList();
+  
+  // 检查是否有编辑用户的查询参数
+  const editUserLoginId = route.query.editUser as string;
+  if (editUserLoginId) {
+    // 自动调用编辑用户功能
+    handleEdit(editUserLoginId);
+  }
 });
 
 </script>
