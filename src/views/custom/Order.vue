@@ -15,7 +15,11 @@
       <el-table-column prop="roomTypeName" label="房型" width="90" />
       <el-table-column prop="roomId" label="房号" width="60" />
       <el-table-column prop="guestNum" label="人数" width="60" />
-      <el-table-column prop="totalMoney" label="总金额" width="80" />
+      <el-table-column prop="totalMoney" label="总金额" width="80">
+        <template #default="scope">
+          ￥{{ scope.row.totalMoney }}
+        </template>
+      </el-table-column>
       <el-table-column prop="resideDate" label="入住日期" width="140">
         <template #default="scope">
           {{ formatDate(scope.row.resideDate) }}
@@ -31,7 +35,8 @@
           <el-button size="small" @click="handleEdit(scope.row.orderId)">
             编辑
           </el-button>
-          <el-button size="small" type="success" @click="handleCheck(scope.row.orderId, scope.row.resideDate, scope.row.leaveDate, scope.row.totalMoney)">
+          <el-button size="small" type="success"
+            @click="handleCheck(scope.row.orderId, scope.row.resideDate, scope.row.leaveDate, scope.row.totalMoney)">
             入住
           </el-button>
         </template>
@@ -218,7 +223,7 @@ const handleEdit = async (id: string) => {
 const handleCheck = (id: string, reside: string, leave: string, totalMoney: number) => {
   const currentDate = new Date();
   const resideDate = new Date(reside);
-  
+
   // 检查入住日期是否比当前日期晚
   if (resideDate > currentDate) {
     ElMessage({
@@ -237,7 +242,7 @@ const handleCheck = (id: string, reside: string, leave: string, totalMoney: numb
     });
     return;
   }
-  
+
   // 确认入住
   ElMessageBox.confirm(
     `共计${totalMoney}元，确定入住吗？`,
@@ -248,7 +253,7 @@ const handleCheck = (id: string, reside: string, leave: string, totalMoney: numb
       type: 'warning',
     }
   ).then(async () => {
-    let ret = await $liveIn({ id: id , totalMoney: totalMoney });
+    let ret = await $liveIn({ id: id, totalMoney: totalMoney });
     if (ret.success) {
       ElMessage({
         type: 'success',
@@ -297,5 +302,4 @@ onMounted(() => {
     margin-left: 10px;
   }
 }
-
 </style>

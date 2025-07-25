@@ -6,7 +6,11 @@
     <el-table :data="showList" style="width: 100%">
     <el-table-column prop="roomTypeId" label="编号" width="100" />
     <el-table-column prop="roomTypeName" label="房型" width="150"/>
-    <el-table-column prop="roomTypePrice" label="价格" width="100"/>
+    <el-table-column prop="roomTypePrice" label="价格" width="100">
+      <template #default="scope">
+        ¥{{ scope.row.roomTypePrice }}
+      </template>
+    </el-table-column>
     <el-table-column prop="bedNum" label="床位" width="100"/>
     <el-table-column label="操作">
       <template #default="scope">

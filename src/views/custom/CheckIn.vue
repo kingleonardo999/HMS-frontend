@@ -17,7 +17,11 @@
       <el-table-column prop="guestName" label="姓名" width="70" />
       <el-table-column prop="guestPhone" label="电话" width="110" />
       <el-table-column prop="roomTypeName" label="房型" width="90" />
-      <el-table-column prop="roomTypePrice" label="价格" width="60" />
+      <el-table-column prop="roomTypePrice" label="价格" width="80">
+        <template #default="scope">
+          ￥{{ scope.row.roomTypePrice }}
+        </template>
+      </el-table-column>
       <el-table-column prop="roomId" label="房号" width="60" />
       <el-table-column prop="resideState" label="状态" width="70" />
       <el-table-column prop="deposit" label="押金" width="60" />

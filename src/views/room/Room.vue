@@ -18,7 +18,11 @@
     <el-table :data="list" style="width: 100%">
       <el-table-column prop="roomId" label="房号" width="100" />
       <el-table-column prop="roomTypeName" label="房型" width="150" />
-      <el-table-column prop="roomTypePrice" label="价格" width="100" />
+      <el-table-column prop="roomTypePrice" label="价格" width="100" >
+        <template #default="scope">
+          ¥{{ scope.row.roomTypePrice }}
+        </template>
+      </el-table-column>
       <el-table-column prop="bedNum" label="床位" width="100" />
       <el-table-column prop="roomStatusName" label="状态" width="100" />
       <el-table-column label="操作">
