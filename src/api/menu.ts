@@ -1,8 +1,8 @@
 import { $get, $post } from '../utils/request'
 
-export const $list = async () => {
+export const $list = async (params: object) => {
   try {
-    let ret = await $get('/menu/list');
+    let ret = await $get('/menu/list', params);
     return ret;
   } catch (error: any) {
     return {

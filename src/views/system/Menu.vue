@@ -2,7 +2,7 @@
   <div class="menu">
     <div class="search">
       <span>菜品类型：</span>
-      <el-select v-model="searchForm.typeId" placeholder="菜品类型" style="width: 150px" size="small">
+      <el-select v-model="typeId" placeholder="菜品类型" style="width: 150px" size="small" @change="handleSearch">
         <el-option
           v-for="type in menuTypeList"
           :key="type.id"
@@ -10,162 +10,76 @@
           :value="type.id"
         />
       </el-select>
-      <el-button style="margin-left: 10px;" @click="handleSearch" type="success" size="small">查询</el-button>
       <el-button style="margin-left: 10px;" @click="resetSearch" type="success" size="small">重置</el-button>
       <el-button type="primary" size="small" @click="handleAdd">添加</el-button>
     </div>
 
-    <el-table 
-      :data="showList" 
-      style="width: 100%" 
-      v-loading="loading"
-    >
-      <el-table-column prop="name" label="菜品名称" width="200" />
-      <el-table-column prop="typeName" label="菜品类型" width="120" />
-      <el-table-column prop="price" label="价格" width="100" align="center">
-        <template #default="{ row }">
-          ¥{{ row.price }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="desc" label="描述" min-width="200" />
-      <el-table-column label="操作" width="150">
-        <template #default="scope">
-          <el-button size="small" @click="handleEdit(scope.row)">
+    <!-- 菜品卡片网格 -->
+    <div class="menu-grid" v-loading="loading" :style="{ minHeight: gridMinHeight }">
+      <div 
+        v-for="item in showList" 
+        :key="item.id" 
+        class="menu-card"
+      >
+        <div class="menu-image">
+          <img 
+            :src="getDisplayImageUrl(item.img)" 
+            :alt="item.name"
+            @error="handleImageError"
+          />
+        </div>
+        <div class="menu-info">
+          <div class="menu-name-price">
+            <div class="menu-name" :title="item.name">{{ item.name }}</div>
+            <div class="menu-price">¥{{ item.price }}</div>
+          </div>
+        </div>
+        <div class="menu-actions">
+          <el-button size="small" @click="handleEdit(item)">
             编辑
           </el-button>
-          <el-button size="small" type="danger" @click="handleDelete(scope.row)">
+          <el-button size="small" type="danger" @click="handleDelete(item)">
             删除
           </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+        </div>
+      </div>
+      
+      <!-- 空状态 -->
+      <div v-if="showList.length === 0 && !loading" class="empty-state">
+        <el-empty description="暂无菜品数据" />
+      </div>
+    </div>
 
     <el-pagination 
-      style="margin-top: 5px;" 
+      style="margin-top: 16px;" 
       small 
       background 
       layout="prev, pager, next" 
       :total="total" 
+      :page-size="pageSize"
       v-model:current-page="pageIndex" 
       @current-change="handlePageChange"
       v-if="total > 0"
     />
 
-    <!-- 添加/编辑菜品对话框 -->
-    <el-dialog
-      v-model="dialogVisible"
-      :title="isEdit ? '编辑菜品' : '新增菜品'"
-      width="750px"
-      :before-close="handleDialogClose"
-    >
-      <el-form
-        ref="formRef"
-        :model="formData"
-        :rules="rules"
-        label-width="100px"
-        class="menu-form"
-      >
-        <el-row :gutter="30">
-          <!-- 左侧：菜品信息 -->
-          <el-col :span="12">
-            <el-form-item label="菜品名称" prop="name">
-              <el-input
-                v-model="formData.name"
-                placeholder="请输入菜品名称"
-                clearable
-              />
-            </el-form-item>
-            
-            <el-form-item label="菜品类型" prop="typeId">
-              <el-select v-model="formData.typeId" placeholder="请选择菜品类型" style="width: 100%">
-                <el-option
-                  v-for="type in menuTypeList"
-                  :key="type.id"
-                  :label="type.type"
-                  :value="type.id"
-                />
-              </el-select>
-            </el-form-item>
-            
-            <el-form-item label="价格" prop="price">
-              <el-input-number
-                v-model="formData.price"
-                :min="1"
-                :precision="0"
-                :step="1"
-                placeholder="价格"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-          
-          <!-- 右侧：菜品图片 -->
-          <el-col :span="12">
-            <el-form-item label="菜品图片" prop="imgId">
-              <div class="upload-section-vertical">
-                <el-upload
-                  class="avatar-uploader-compact"
-                  :action="baseURL_dev + '/uploads/img'"
-                  :show-file-list="false"
-                  :on-success="uploadSuccess"
-                  :before-upload="beforeUpload"
-                  :headers="uploadHeaders"
-                  accept="image/*"
-                >
-                  <img v-if="imageUrl" :src="imageUrl" class="avatar-compact" />
-                  <div v-else class="avatar-uploader-icon-compact">
-                    <el-icon><Plus /></el-icon>
-                  </div>
-                </el-upload>
-                <div class="upload-tips-compact">
-                  <p>点击选择图片</p>
-                  <p>支持 jpg、png</p>
-                </div>
-              </div>
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <!-- 描述单独一行 -->
-        <el-form-item label="描述" prop="desc">
-          <el-input
-            v-model="formData.desc"
-            type="textarea"
-            placeholder="请输入菜品描述"
-            :rows="3"
-          />
-        </el-form-item>
-      </el-form>
-
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="handleDialogClose">取消</el-button>
-          <el-button type="primary" @click="handleSubmit" :loading="submitLoading">
-            确认
-          </el-button>
-        </div>
-      </template>
-    </el-dialog>
+    <!-- 添加/编辑菜品组件 -->
+    <EditMenu ref="editRef" @sync-list="getMenuData" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, nextTick } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type UploadProps } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
-import { $list, $add, $update, $delete, $getDetail, $menuType } from '../../api/menu'
-import { baseURL_dev } from '../../config/baseURL'
-import { createUploadSuccessHandler, beforeUploadHandler, getUploadHeaders, processImageUrlSync } from '../../utils/file'
+import { ref, onMounted, computed } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { $list, $delete, $menuType } from '../../api/menu'
+import { processImageUrlSync } from '../../utils/file'
+import EditMenu from '../../components/system/EditMenu.vue'
 
-interface MenuData {
-  id?: number
+// 列表显示的菜品数据结构（来自后端）
+interface MenuListItem {
+  id: number
   name: string
-  typeId: string
   price: number
-  imgId?: number
-  imgUrl?: string
-  desc?: string
-  typeName?: string
+  img: string
 }
 
 interface MenuType {
@@ -173,92 +87,59 @@ interface MenuType {
   type: string
 }
 
-interface SearchForm {
-  typeId: string
-}
+const typeId = ref<number>()
 
 // 响应式数据
 const loading = ref(false)
-const submitLoading = ref(false)
-const dialogVisible = ref(false)
-const isEdit = ref(false)
-const showList = ref<MenuData[]>([])
+const showList = ref<MenuListItem[]>([])
 const menuTypeList = ref<MenuType[]>([])
-
-// 图片上传相关
-const imageUrl = ref('')
 
 // 分页数据
 const total = ref(0)
 const pageIndex = ref(1)
 const pageSize = ref(10)
 
-// 搜索表单
-const searchForm = reactive<SearchForm>({
-  typeId: ''
-})
-
-// 表单数据
-const formData = reactive<MenuData>({
-  name: '',
-  typeId: '',
-  price: 0,
-  imgId: undefined,
-  desc: ''
-})
-
-// 上传相关方法
-const beforeUpload: UploadProps['beforeUpload'] = beforeUploadHandler
-
-const uploadSuccess = createUploadSuccessHandler(reactive({ value: formData }), imageUrl)
-
-const uploadHeaders = getUploadHeaders()
+// 编辑组件引用
+const editRef = ref()
 
 // 处理图片URL显示
 const getDisplayImageUrl = processImageUrlSync
 
-// 表单引用
-const formRef = ref<FormInstance>()
-
-// 表单验证规则
-const rules = {
-  name: [
-    { required: true, message: '请输入菜品名称', trigger: 'blur' }
-  ],
-  typeId: [
-    { required: true, message: '请选择菜品类型', trigger: 'change' }
-  ],
-  price: [
-    { required: true, message: '请输入价格', trigger: 'blur' },
-    { 
-      validator: (rule: any, value: any, callback: any) => {
-        if (value <= 0) {
-          callback(new Error('价格必须是正数'))
-        } else if (!Number.isInteger(value)) {
-          callback(new Error('价格必须是整数'))
-        } else {
-          callback()
-        }
-      }, 
-      trigger: 'blur' 
-    }
-  ]
+// 图片加载错误处理
+const handleImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  img.src = '/placeholder-image.jpg' // 可以设置一个默认图片
 }
+
+// 计算网格最小高度
+const gridMinHeight = computed(() => {
+  if (showList.value.length === 0) {
+    return '240px' // 空状态时的高度
+  }
+  
+  // 计算需要的行数
+  const rows = Math.ceil(showList.value.length / 5)
+  const cardHeight = 240 // 卡片高度
+  const gap = 16 // 间隙
+  
+  // 计算总高度：行数 * 卡片高度 + (行数-1) * 间隙
+  const totalHeight = rows * cardHeight + (rows - 1) * gap
+  return `${totalHeight}px`
+})
 
 // 获取菜品列表
 const getMenuData = async () => {
   try {
     loading.value = true
-    const params = {
+    
+    const result = await $list({
       pageIndex: pageIndex.value,
       pageSize: pageSize.value,
-      ...(searchForm.typeId && { typeId: parseInt(searchForm.typeId) })
-    }
-    
-    const result = await $list()
+      typeId: typeId.value
+    })
     if (result.success) {
-      showList.value = result.data?.records || result.data || []
-      total.value = result.data?.total || showList.value.length
+      showList.value = result.data || []
+      total.value = result.total || 0
     } else {
       ElMessage.error(result.message)
     }
@@ -292,7 +173,7 @@ const handleSearch = () => {
 
 // 重置搜索
 const resetSearch = () => {
-  searchForm.typeId = ''
+  typeId.value = undefined
   pageIndex.value = 1
   getMenuData()
 }
@@ -305,34 +186,16 @@ const handlePageChange = (page: number) => {
 
 // 添加菜品
 const handleAdd = () => {
-  isEdit.value = false
-  resetFormData()
-  dialogVisible.value = true
-  nextTick(() => {
-    formRef.value?.clearValidate()
-  })
+  editRef.value.initFormData(menuTypeList.value)
 }
 
 // 编辑菜品
-const handleEdit = (row: MenuData) => {
-  isEdit.value = true
-  Object.assign(formData, row)
-  
-  // 处理图片URL显示
-  if (row.imgId && row.imgUrl) {
-    imageUrl.value = getDisplayImageUrl(row.imgUrl)
-  } else {
-    imageUrl.value = ''
-  }
-  
-  dialogVisible.value = true
-  nextTick(() => {
-    formRef.value?.clearValidate()
-  })
+const handleEdit = async (row: MenuListItem) => {
+  editRef.value.initFormData(menuTypeList.value, row)
 }
 
 // 删除菜品
-const handleDelete = async (row: MenuData) => {
+const handleDelete = async (row: MenuListItem) => {
   try {
     await ElMessageBox.confirm(
       `确定要删除菜品 "${row.name}" 吗？`,
@@ -359,56 +222,6 @@ const handleDelete = async (row: MenuData) => {
   }
 }
 
-// 重置表单数据
-const resetFormData = () => {
-  Object.assign(formData, {
-    name: '',
-    typeId: '',
-    price: 0,
-    imgId: undefined,
-    desc: ''
-  })
-  imageUrl.value = ''
-}
-
-// 关闭对话框
-const handleDialogClose = () => {
-  dialogVisible.value = false
-  resetFormData()
-}
-
-// 提交表单
-const handleSubmit = async () => {
-  if (!formRef.value) return
-
-  try {
-    await formRef.value.validate()
-    submitLoading.value = true
-
-    let result
-    if (isEdit.value) {
-      // POST /menu/update
-      result = await $update(formData)
-    } else {
-      // POST /menu/add
-      result = await $add(formData)
-    }
-
-    if (result.success) {
-      ElMessage.success(isEdit.value ? '更新成功' : '添加成功')
-      dialogVisible.value = false
-      getMenuData()
-    } else {
-      ElMessage.error(result.message)
-    }
-  } catch (error) {
-    console.error('提交失败:', error)
-    ElMessage.error('操作失败')
-  } finally {
-    submitLoading.value = false
-  }
-}
-
 // 页面加载时获取数据
 onMounted(() => {
   getMenuData()
@@ -429,162 +242,99 @@ onMounted(() => {
   }
 }
 
-.dialog-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
+/* 菜品网格样式 */
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  margin: 20px 16px;
+  min-height: auto; /* 改为auto，根据内容自适应 */
 }
 
-.upload-section {
-  display: flex;
-  align-items: flex-start;
-  gap: 15px;
-}
-
-.upload-section-vertical {
+.menu-card {
+  border: 1px solid #e4e7ed;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s;
+  background: #fff;
+  height: 240px; /* 固定高度，确保两行能完全显示 */
   display: flex;
   flex-direction: column;
+  
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+}
+
+.menu-image {
+  width: 100%;
+  height: 160px; /* 增加图片高度，给图片更多空间 */
+  overflow: hidden;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+    border-radius: 7px 7px 0 0; /* 图片圆角与外边框一致 */
+  }
+  
+  &:hover img {
+    transform: scale(1.05);
+  }
+}
+
+.menu-info {
+  padding: 10px 12px; /* 稍微增加内边距 */
+  flex: 1; /* 自动占用剩余空间 */
+  
+  .menu-name-price {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    .menu-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: #303133;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+      margin-right: 8px;
+    }
+    
+    .menu-price {
+      font-size: 16px;
+      font-weight: 600;
+      color: #f56c6c;
+      white-space: nowrap;
+    }
+  }
+}
+
+.menu-actions {
+  padding: 8px 12px; /* 保持按钮区域紧凑 */
+  display: flex;
+  gap: 8px;
+  
+  .el-button {
+    flex: 1;
+    font-size: 12px; /* 减小按钮字体 */
+    padding: 4px 8px; /* 减小按钮内边距 */
+  }
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
   align-items: center;
-  text-align: center;
+  min-height: 240px; /* 与卡片高度一致 */
 }
 
-.avatar-uploader {
-  border: 1px dashed #d9d9d9;
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s;
-
-  &:hover {
-    border-color: #409eff;
-  }
-}
-
-.avatar-uploader-large {
-  border: 1px dashed #d9d9d9;
-  border-radius: 8px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s;
-  margin-bottom: 10px;
-
-  &:hover {
-    border-color: #409eff;
-  }
-}
-
-.avatar-uploader-compact {
-  border: 1px dashed #d9d9d9;
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s;
-  margin-bottom: 8px;
-
-  &:hover {
-    border-color: #409eff;
-  }
-}
-
-.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 100px;
-  height: 100px;
-  text-align: center;
-  line-height: 100px;
-}
-
-.avatar-uploader-icon-large {
-  font-size: 32px;
-  color: #8c939d;
-  width: 150px;
-  height: 150px;
-  text-align: center;
-  line-height: 150px;
-}
-
-.avatar-uploader-icon-compact {
-  font-size: 24px;
-  color: #8c939d;
-  width: 110px;
-  height: 110px;
-  text-align: center;
-  line-height: 110px;
-}
-
-.avatar {
-  width: 100px;
-  height: 100px;
-  display: block;
-  object-fit: cover;
-  border-radius: 4px;
-}
-
-.avatar-large {
-  width: 150px;
-  height: 150px;
-  display: block;
-  object-fit: cover;
-  border-radius: 6px;
-}
-
-.avatar-compact {
-  width: 110px;
-  height: 110px;
-  display: block;
-  object-fit: cover;
-  border-radius: 6px;
-}
-
-.upload-tips {
-  flex: 1;
-  font-size: 12px;
-  color: #909399;
-  line-height: 1.5;
-
-  p {
-    margin: 0 0 5px 0;
-    
-    &:first-child {
-      color: #606266;
-      font-weight: 500;
-    }
-  }
-}
-
-.upload-tips-vertical {
-  font-size: 12px;
-  color: #909399;
-  line-height: 1.5;
-  text-align: center;
-
-  p {
-    margin: 0 0 5px 0;
-    
-    &:first-child {
-      color: #606266;
-      font-weight: 500;
-    }
-  }
-}
-
-.upload-tips-compact {
-  font-size: 12px;
-  color: #909399;
-  line-height: 1.4;
-  text-align: center;
-
-  p {
-    margin: 0 0 4px 0;
-    
-    &:first-child {
-      color: #606266;
-      font-weight: 500;
-    }
-  }
+.el-pagination {
+  margin-left: 10px;
 }
 </style>

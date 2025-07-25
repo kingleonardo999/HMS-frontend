@@ -201,4 +201,7 @@ onMounted(async () => {
     margin-left: 10px;
   }
 }
+.el-pagination {
+  margin-left: 10px;
+}
 </style>

@@ -37,76 +37,32 @@
       v-if="dictList.length > 0"
     />
 
-    <!-- 添加/编辑字典对话框 -->
-    <el-dialog
-      v-model="dialogVisible"
-      :title="isEdit ? '编辑字典' : '新增字典'"
-      width="500px"
-    >
-      <el-form
-        ref="formRef"
-        :model="formData"
-        :rules="rules"
-        label-width="100px"
-      >
-        <el-form-item label="字典类型">
-          <el-input :value="selectedType" disabled />
-        </el-form-item>
-        
-        <el-form-item label="字典名称" prop="name">
-          <el-input
-            v-model="formData.name"
-            placeholder="请输入字典名称"
-            clearable
-          />
-        </el-form-item>
-      </el-form>
-      
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="handleSubmit" :loading="submitLoading">
-            确认
-          </el-button>
-        </div>
-      </template>
-    </el-dialog>
+    <!-- 添加/编辑字典组件 -->
+    <EditDict ref="editRef" @sync-list="loadDictList" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, nextTick, computed } from 'vue';
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus';
-import { $dictlist, $list, $add, $update, $delete } from '../../api/dict';
+import { ref, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { $dictlist, $list, $delete } from '../../api/dict';
+import EditDict from '../../components/system/EditDict.vue';
 
 // 响应式数据
 const loading = ref(false);
-const submitLoading = ref(false);
-const dialogVisible = ref(false);
-const isEdit = ref(false);
-const formRef = ref<FormInstance>();
 const selectedType = ref('');
 
 type Dict = {
   id: number;
   name: string;
 };
+
 // 字典列表和类型
 const dictList = ref<Dict[]>([]);
 const dictTypes = ref<string[]>([]);
 
-// 表单数据
-const formData = reactive({
-  id: null,
-  name: ''
-});
-
-// 表单验证规则
-const rules: FormRules = {
-  name: [
-    { required: true, message: '请输入字典名称', trigger: 'blur' }
-  ]
-};
+// 编辑组件引用
+const editRef = ref();
 
 // 初始化
 onMounted(() => {
@@ -158,16 +114,12 @@ const handleAdd = () => {
     ElMessage.warning('请先选择字典类型');
     return;
   }
-  isEdit.value = false;
-  resetForm();
-  dialogVisible.value = true;
+  editRef.value.initFormData(selectedType.value);
 };
 
 // 编辑字典
 const handleEdit = (row: any) => {
-  isEdit.value = true;
-  Object.assign(formData, row);
-  dialogVisible.value = true;
+  editRef.value.initFormData(selectedType.value, row);
 };
 
 // 删除字典
@@ -194,44 +146,6 @@ const handleDelete = (row: any) => {
     }
   });
 };
-
-// 提交表单
-const handleSubmit = async () => {
-  if (!formRef.value) return;
-  
-  const valid = await formRef.value.validate().catch(() => false);
-  if (!valid) return;
-  
-  submitLoading.value = true;
-  try {
-    const result = isEdit.value 
-      ? await $update(selectedType.value, formData) 
-      : await $add(selectedType.value, formData);
-      
-    if (result.success) {
-      ElMessage.success(isEdit.value ? '更新成功' : '添加成功');
-      dialogVisible.value = false;
-      loadDictList();
-    } else {
-      ElMessage.error(result.message);
-    }
-  } catch (error) {
-    ElMessage.error(isEdit.value ? '更新失败' : '添加失败');
-  } finally {
-    submitLoading.value = false;
-  }
-};
-
-// 重置表单
-const resetForm = () => {
-  Object.assign(formData, {
-    id: null,
-    name: ''
-  });
-  nextTick(() => {
-    formRef.value?.clearValidate();
-  });
-};
 </script>
 
 <style lang="scss" scoped>
@@ -245,11 +159,5 @@ const resetForm = () => {
     color: #909399;
     margin-left: 10px;
   }
-}
-
-.dialog-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
 }
 </style>
