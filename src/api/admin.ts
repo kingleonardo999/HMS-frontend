@@ -35,9 +35,29 @@ export const $login = async (params:LoginParams) => {
     }
     return ret.success;
   } catch (error: any) {
+    // 处理HTTP错误
+    let errorMessage = '登录失败';
+    
+    if (error.response) {
+      // 服务器返回了错误状态码
+      if (error.response.status === 401) {
+        errorMessage = error.response.data?.message || '账号或密码错误';
+      } else if (error.response.status === 500) {
+        errorMessage = '服务器内部错误';
+      } else {
+        errorMessage = error.response.data?.message || '请求失败';
+      }
+    } else if (error.request) {
+      // 网络错误
+      errorMessage = '网络连接失败，请检查网络';
+    } else {
+      // 其他错误
+      errorMessage = error.message || '未知错误';
+    }
+    
     ElNotification({
-        title: '通知',
-        message: error.response?.data?.message || error.message || '请求失败',
+        title: '登录失败',
+        message: errorMessage,
         type: 'error',
       })
     return false;

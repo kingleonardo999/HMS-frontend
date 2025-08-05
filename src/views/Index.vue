@@ -58,10 +58,6 @@
             <el-icon><HomeFilled /></el-icon>
             首页
           </el-menu-item>
-          <el-menu-item index="/mail">
-            <el-icon><Message /></el-icon>
-            邮件
-          </el-menu-item>
           <el-menu-item index="/message">
             <el-icon><ChatDotRound /></el-icon>
             消息

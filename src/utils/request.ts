@@ -66,13 +66,20 @@ instance.interceptors.response.use(function (response) {
 }, function (error) {
   // 非 2xx 状态码或网络错误会执行这里
   // 例如：401 未授权、404 未找到、500 服务器错误、网络超时等
-  if (error.response && error.response.status === 401) {
-    // token 过期
-    sessionStorage.removeItem('token');
-    
-    exit();
-    return null;
+  
+  // 检查是否是登录请求的401错误
+  if (error.config && error.config.url === '/admin/login' && error.response && error.response.status === 401) {
+    // 登录失败的401错误，不需要弹出"登录过期"提示，直接传递错误
+    return Promise.reject(error);
   }
+  
+  if (error.response && error.response.status === 401) {
+    // 其他请求的token过期
+    sessionStorage.removeItem('token');
+    exit();
+    return Promise.reject(error);
+  }
+  
   return Promise.reject(error);
 });
 

@@ -132,8 +132,9 @@ import { onMounted, reactive, ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 // 导入全局状态管理
 import useUser from '../store/user'
-// 导入element-plus的类型
+// 导入element-plus的类型和消息组件
 import type { FormInstance, FormRules } from 'element-plus'
+import { ElMessage } from 'element-plus'
 // 导入图标
 import { House, User, Lock, Right, Check } from '@element-plus/icons-vue'
 
@@ -192,10 +193,21 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   try {
     let ret = await $login(formData)
     if (ret) {
-      let user = await $getOne({loginId: formData.loginId})
-      userStore.setUser(user.data)
-      router.push('/index')
+      // 登录成功后获取用户信息
+      let userInfo = await $getOne({loginId: formData.loginId})
+      if (userInfo && userInfo.success && userInfo.data) {
+        userStore.setUser(userInfo.data)
+        router.push('/index')
+      } else {
+        // 获取用户信息失败
+        console.error('获取用户信息失败:', userInfo?.message)
+        ElMessage.error('获取用户信息失败，请重新登录')
+      }
     }
+    // 如果ret为false，$login函数已经显示了错误信息，这里不需要额外处理
+  } catch (error) {
+    console.error('登录过程中发生错误:', error)
+    ElMessage.error('登录过程中发生错误，请稍后重试')
   } finally {
     loading.value = false
   }

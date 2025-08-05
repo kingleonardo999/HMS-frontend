@@ -23,11 +23,6 @@ const routes = [
         component: () => import('../views/Home.vue')
       },
       {
-        path: '/mail',
-        meta: { titile: '邮件' },
-        component: () => import('../views/Mail.vue')
-      },
-      {
         path: '/message',
         meta: { titile: '消息' },
         component: () => import('../views/Message.vue')
