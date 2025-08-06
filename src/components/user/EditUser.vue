@@ -60,7 +60,7 @@
       <el-form-item label="头像" prop="imgId">
         <el-upload
           class="avatar-uploader"
-          :action="baseURL_dev + '/uploads/img'"
+          :action="'/api/uploads/img'"
           :show-file-list="false"
           :on-success="uploadSuccess"
           :before-upload="beforeUpload"
@@ -82,8 +82,7 @@
 import { ElNotification, type FormInstance, type FormRules, type UploadProps } from 'element-plus';
 import { reactive, ref } from 'vue';
 import { $add, $update } from '../../api/admin';
-import { Plus } from '@element-plus/icons-vue'
-import { baseURL_dev } from '../../config/baseURL';
+import { Plus } from '@element-plus/icons-vue';
 import { createUploadSuccessHandler, beforeUploadHandler, getUploadHeaders, processImageUrlSync } from '../../utils/file';
 
 const emit = defineEmits(['sync-list']);

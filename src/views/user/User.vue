@@ -56,7 +56,6 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import EditUser from '../../components/user/EditUser.vue';
 import { $list as $roleList } from '../../api/role';
 import type { Role } from '../../views/user/Role.vue';
-import { baseURL_dev } from '../../config/baseURL';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
@@ -170,7 +169,7 @@ const getDisplayImageUrl = (photo: string): string => {
   }
   
   // 如果不是完整URL，拼接baseURL
-  return baseURL_dev + '/' + photo.replace(/^\//, '');
+  return '/api/' + photo.replace(/^\//, '');
 };
 
 // 定义编辑组件ref

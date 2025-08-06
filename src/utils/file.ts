@@ -1,6 +1,5 @@
 import { ElNotification, type UploadProps } from 'element-plus'
 import { $uploadImage } from '../api/file'
-import { baseURL_dev } from '../config/baseURL'
 
 // 图片URL缓存
 const imageUrlCache = new Map<string, string>()
@@ -48,7 +47,7 @@ export const processImageUrlSync = (imageData: string | number | undefined): str
   }
   
   // 直接拼接baseURL
-  return baseURL_dev + '/' + imageStr.replace(/^\//, '')
+  return '/api/' + imageStr.replace(/^\//, '')
 }
 
 // 清除图片URL缓存
@@ -82,7 +81,7 @@ export const handleRichTextImageUpload = async (file: File, insertFn: Function):
       if (isFullUrl(url)) {
         imageUrl = url
       } else {
-        imageUrl = baseURL_dev + '/' + url.replace(/^\//, '')
+        imageUrl = '/api/' + url.replace(/^\//, '')
       }
       
       // 缓存URL
@@ -149,7 +148,7 @@ export const createUploadSuccessHandler = (formDataRef: any, imageUrlRef?: any):
       const cacheKey = `img_${id}`
       let finalUrl = url
       if (!isFullUrl(url)) {
-        finalUrl = baseURL_dev + '/' + url.replace(/^\//, '')
+        finalUrl = '/api/' + url.replace(/^\//, '')
       }
       imageUrlCache.set(cacheKey, finalUrl)
       

@@ -52,7 +52,7 @@
             <div class="upload-section-vertical">
               <el-upload
                 class="avatar-uploader-compact"
-                :action="baseURL_dev + '/uploads/img'"
+                :action="'/api/uploads/img'"
                 :show-file-list="false"
                 :on-success="uploadSuccess"
                 :before-upload="beforeUpload"
@@ -100,7 +100,6 @@ import { ref, reactive, nextTick } from 'vue';
 import { ElMessage, type FormInstance, type FormRules, type UploadProps } from 'element-plus';
 import { Plus } from '@element-plus/icons-vue';
 import { $add, $update, $getDetail } from '../../api/menu';
-import { baseURL_dev } from '../../config/baseURL';
 import { createUploadSuccessHandler, beforeUploadHandler, getUploadHeaders, processImageUrlSync } from '../../utils/file';
 
 const emit = defineEmits(['sync-list']);
@@ -219,7 +218,7 @@ const initFormData = async (menuTypes: MenuType[], data?: MenuListItem | MenuDat
               imageUrl.value = data.img;
             } else {
               // 如果不是完整URL，拼接baseURL
-              imageUrl.value = baseURL_dev + '/' + data.img.replace(/^\//, '');
+              imageUrl.value = '/api' + '/' + data.img.replace(/^\//, '');
             }
           } else if (fullData.imgId && fullData.imgUrl) {
             imageUrl.value = getDisplayImageUrl(fullData.imgUrl);

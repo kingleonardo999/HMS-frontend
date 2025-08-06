@@ -11,5 +11,12 @@ export default defineConfig({
     allowedHosts: [
       'king',  // 允许 "king" 主机
     ],
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:5000', // 开发时后端地址
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/api/, '') // 去掉 /api 前缀
+      }
+    }
   }
 })

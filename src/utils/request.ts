@@ -1,12 +1,11 @@
 import axios from "axios";
-import { baseURL_dev } from '../config/baseURL'
 import { ElLoading, ElMessage, ElMessageBox } from 'element-plus'
 import router from "../router";
 import  useUser  from "../store/user";
 
 // 初始化一个axios对象
 const instance = axios.create({
-  baseURL: baseURL_dev,
+  baseURL: '/api', // 使用代理，实际请求地址会被重写
   timeout: 1000,
 });
 
