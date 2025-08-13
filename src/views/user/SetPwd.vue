@@ -125,10 +125,12 @@ import { ref } from 'vue';
 import { $resetPwd } from '../../api/admin';
 import useUser from '../../store/user';
 import { Lock, Key, Unlock, Warning, Check, Close, InfoFilled } from '@element-plus/icons-vue';
+import { useRouter } from 'vue-router';
 
 const userStore = useUser();
 const formRef = ref<FormInstance>();
 const loading = ref(false);
+const router = useRouter();
 
 let formData = ref({
   loginId: userStore.user.loginId,
@@ -195,9 +197,9 @@ const submitForm = async (formEl: FormInstance | undefined) => {
           cancelButtonText: '取消',
           type: 'warning',
         }).then(() => {
-          window.location.href = '/login';
+          router.replace('/login');
         }).catch(() => {
-          window.location.href = '/login';
+          router.replace('/login');
         });
       }, 1000);
     } else {

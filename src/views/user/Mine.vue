@@ -4,7 +4,7 @@
     <div class="profile-card">
       <div class="avatar-section">
         <div class="avatar-container">
-          <img :src="userStore.user.photo || '/default-avatar.png'" alt="头像" class="avatar">
+          <img :src="(userStore.user.photo && userStore.user.photo.startsWith('http')) ? userStore.user.photo : 'api/' + (userStore.user.photo || '/default-avatar.png')" alt="头像" class="avatar">
           <div class="avatar-overlay">
             <el-icon class="edit-icon">
               <Edit />
