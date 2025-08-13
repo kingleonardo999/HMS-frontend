@@ -6,7 +6,7 @@ import  useUser  from "../store/user";
 // 初始化一个axios对象
 const instance = axios.create({
   baseURL: '/api', // 使用代理，实际请求地址会被重写
-  timeout: 1000,
+  timeout: 3000,
 });
 
 // 全局加载实例

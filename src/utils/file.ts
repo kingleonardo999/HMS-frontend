@@ -118,8 +118,8 @@ export const createRichTextEditorConfig = () => {
           await handleRichTextImageUpload(file, insertFn)
         },
         
-        // 单个文件的最大体积限制，默认为 2M
-        maxFileSize: 5 * 1024 * 1024, // 5M
+        // 单个文件的最大体积限制
+        maxFileSize: 1 * 1024 * 1024, // 1MB
         
         // 最高可上传几个文件，默认为 100
         maxNumberOfFiles: 10,
